@@ -39,16 +39,16 @@ class UserController extends Controller
         if (User::create($data)) {
             $out = [
                 "message" => "register_success",
-                "code"    => 201,
+                "statusCode"    => 201,
             ];
         } else {
             $out = [
                 "message" => "failed_regiser",
-                "code"   => 404,
+                "statusCode"   => 404,
             ];
         }
  
-        return response()->json($out, $out['code']);
+        return response()->json($out, $out['statusCode']);
     }
 
     public function login(Request $request)
@@ -65,13 +65,13 @@ class UserController extends Controller
  
         if (!$user) {
             $out = [
-                "message" => "login_vailed",
-                "code"    => 401,
+                "message" => "Wrong username and password",
+                "statusCode"    => 401,
                 "result"  => [
                     "token" => null,
                 ]
             ];
-            return response()->json($out, $out['code']);
+            return response()->json($out, $out['statusCode']);
         }
  
         if (Hash::check($password, $user->password)) {
@@ -82,22 +82,24 @@ class UserController extends Controller
             
             $out = [
                 "message" => "login_success",
-                "code"    => 200,
+                "statusCode"    => 200,
                 "result"  => [
+                    "userid" => $user->id,
                     "token" => $newtoken,
+                    "role" => $user->role_id,
                 ],
             ];
         } else {
             $out = [
-                "message" => "login_vailed",
-                "code"    => 401,
+                "message" => "Wrong username and password",
+                "statusCode"    => 401,
                 "result"  => [
                     "token" => null,
                 ]
             ];
         }
  
-        return response()->json($out, $out['code']);
+        return response()->json($out, $out['statusCode']);
     }
 
     private function generateRandomString() {
