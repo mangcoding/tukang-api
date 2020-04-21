@@ -6,6 +6,7 @@ use App\User;
 use App\Token;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use DB;
 
 class UserController extends Controller
 {
@@ -67,9 +68,6 @@ class UserController extends Controller
             $out = [
                 "message" => "Wrong username and password",
                 "statusCode"    => 401,
-                "result"  => [
-                    "token" => null,
-                ]
             ];
             return response()->json($out, $out['statusCode']);
         }
@@ -80,22 +78,36 @@ class UserController extends Controller
             $user->token = $newtoken;
             $user->save();
             
+            $address = DB::table('address')
+                        ->select("address","district_id","regency_id","province_id","zipcode","is_primary","lattitudes","longitudes")
+                        ->where("user_id",$user->id)
+                        ->get();
+
+            $profile = DB::table('customers')
+                        ->select("first_name","last_name","phone","nik")
+                        ->where("customer_id",$user->id)
+                        ->first();
+            if ($profile) {
+                $profile->email = $user->email;
+            }
+
             $out = [
                 "message" => "login_success",
                 "statusCode"    => 200,
                 "result"  => [
-                    "userid" => $user->id,
-                    "token" => $newtoken,
-                    "role" => $user->role_id,
+                    "user" => [
+                        "token" => $newtoken,
+                        "role" => $user->role_id,
+                        "user_id" => $user->id,
+                    ],
+                    "address" => $address,
+                    "profile" => $profile,
                 ],
             ];
         } else {
             $out = [
                 "message" => "Wrong username and password",
                 "statusCode"    => 401,
-                "result"  => [
-                    "token" => null,
-                ]
             ];
         }
  
