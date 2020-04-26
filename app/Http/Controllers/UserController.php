@@ -19,28 +19,45 @@ class UserController extends Controller
     {
         $this->validate($request, [
             'email' => 'required|unique:users|max:255',
+            'first_name' => 'required',
+            'phone' => 'required|unique:customers',
             'password' => 'required|min:6'
         ]);
  
         $email = $request->input("email");
-        $role_id = $request->input("role_id");
+        $role_id = 3;
         $password = $request->input("password");
         $hashPwd = Hash::make($password);
-        
+        $token = $this->generateRandomString();
         $data = [
             "username" => $email,
             "email"    => $email,
             "password" => $hashPwd,
             "role_id"  => $role_id,
-            "token"    => $this->generateRandomString(),
+            "token"    => $token,
         ];
  
  
- 
-        if (User::create($data)) {
+        if ($user = User::create($data)) {
+            $profile = [
+                "first_name" => $request->input("first_name"),
+                "last_name" => $request->input("last_name"),
+                "phone" => $request->input("phone"),
+                "customer_id" => $user->id,
+            ];
+            DB::table('customers')->insert($profile);
+            $profile["email"] = $user->email;
             $out = [
                 "message" => "register_success",
                 "statusCode"    => 201,
+                "result"  => [
+                    "user" => [
+                        "token" => $token,
+                        "role" => $user->role_id,
+                        "user_id" => $user->id,
+                    ],
+                    "profile" => $profile,
+                ],
             ];
         } else {
             $out = [
@@ -100,7 +117,6 @@ class UserController extends Controller
                         "role" => $user->role_id,
                         "user_id" => $user->id,
                     ],
-                    "address" => $address,
                     "profile" => $profile,
                 ],
             ];
