@@ -19,5 +19,6 @@ $router->post("/register", "UserController@register");
 $router->post("/login", "UserController@login");
 
 $router->group(['middleware'=>'auth.api'], function () use ($router) {
-    $router->post("/merchant/all", "MerchantController@show");
+    $router->post("/merchant", "MerchantController@show");
+    $router->post("/order", "MerchantController@order");
 });

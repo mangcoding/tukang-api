@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
  
 use App\User;
+use App\LogUser;
 use App\Token;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -120,6 +121,17 @@ class UserController extends Controller
                     "profile" => $profile,
                 ],
             ];
+
+            //Log User
+            $dataLog = [
+                "user_id"    => $user->id,
+                "ip_address" => $request->ip(),
+                // "macid"      => null,
+                "login_at"   => date("Y-m-d H:i:s")
+            ];
+
+            LogUser::create($dataLog);
+
         } else {
             $out = [
                 "message" => "Wrong username and password",

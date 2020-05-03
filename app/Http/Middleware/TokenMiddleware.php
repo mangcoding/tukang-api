@@ -16,13 +16,14 @@ class TokenMiddleware
      */
     public function handle($request, Closure $next)
     {
-        if ($request->input('token')) {
-            $check =  User::where('token', $request->input('token'))->first();
+        $token = $request->header('token') ?? $request->input('token');
+        if ($token) {
+            $check =  User::where('token', $token)->first();
  
             if (!$check) {
                 $out = [
                     "message" => "Token inValid",
-                    "code"   => 401,
+                    "statusCode"   => 401,
                 ];
             } else {
                 return $next($request);
@@ -30,10 +31,10 @@ class TokenMiddleware
         } else {
             $out = [
                 "message" => "Please input token, token missing",
-                "code"   => 401,
+                "statusCode"   => 401,
             ];
         }
  
-        return response()->json($out, $out['code']);
+        return response()->json($out, $out['statusCode']);
     }
 }
