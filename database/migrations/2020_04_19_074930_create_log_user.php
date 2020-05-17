@@ -18,7 +18,6 @@ class CreateLogUser extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->string('ip_address');
-            $table->string('macid');
             $table->dateTime("login_at")->nullable();
             $table->dateTime("logout_at")->nullable();
             $table->foreign('user_id')->references('id')->on('users');
